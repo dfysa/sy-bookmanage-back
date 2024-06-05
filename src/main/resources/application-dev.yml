@@ -5,9 +5,9 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     # 配置连接数据库信息
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bms_boot?characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://localhost:3306/bms_boot_structure?characterEncoding=utf8&useSSL=false
     username: root
-    password: hsp
+    password: lfy31678
 # todo 开启 redis 取消注释即可
 #  redis:
 #    host: 106.14.33.49
