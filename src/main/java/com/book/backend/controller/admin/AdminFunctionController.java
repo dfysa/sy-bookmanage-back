@@ -19,7 +19,7 @@ import java.util.List;
 
 
 /**
- * @author 程序员小白条
+ * @author
  */
 @RestController
 @RequestMapping("admin")
@@ -350,6 +350,38 @@ public class AdminFunctionController {
     public R<String> updateBookAdmin(@RequestBody BookAdmins bookAdmins) {
         return bookAdminsService.updateBookAdmin(bookAdmins);
     }
+
+
+    @PostMapping("list")
+    @ApiOperation("获取用户列表")
+    public R<Page<Users>> getUserListByPage(@RequestBody BasePage basePage) {
+        return usersService.getUserListByPage(basePage);
+    }
+
+    @PostMapping("add")
+    @ApiOperation("添加用户")
+    public R<String> addUser(@RequestBody Users user) {
+        return usersService.addUser(user);
+    }
+
+    @GetMapping("get/{userId}")
+    @ApiOperation("获取用户信息")
+    public R<Users> getUserById(@PathVariable("userId") Long userId) {
+        return usersService.getUserById(Math.toIntExact(userId));
+    }
+
+    @DeleteMapping("delete/{userId}")
+    @ApiOperation("删除用户")
+    public R<String> deleteUserById(@PathVariable("userId") Long userId) {
+        return usersService.deleteUserById(Math.toIntExact(userId));
+    }
+
+    @PutMapping("update")
+    @ApiOperation("修改用户信息")
+    public R<String> updateUser(@RequestBody Users user) {
+        return usersService.updateUser(user);
+    }
+
 
     /**
      * 获取借阅量

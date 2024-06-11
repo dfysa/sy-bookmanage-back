@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * @author 程序员小白条
  */
 @Configuration
-@MapperScan("com.blog.backend.mapper")
+@MapperScan("com.book.backend.mapper")
 public class MyBatisConfig {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor(){

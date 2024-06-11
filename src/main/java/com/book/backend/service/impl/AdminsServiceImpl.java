@@ -71,7 +71,7 @@ public class AdminsServiceImpl extends ServiceImpl<AdminsMapper, Admins>
         BeanUtils.copyProperties(usersDTO, users, "userStatus");
         String md5Password = DigestUtils.md5DigestAsHex(password.getBytes());
         users.setStatus(status);
-        users.setCardName(RandomNameUtils.fullName());
+//        users.setCardName(RandomNameUtils.fullName());
         // 密码加密
         users.setPassword(md5Password);
         long cardNumber = Long.parseLong(new String(NumberUtil.getNumber(11)));

@@ -33,6 +33,13 @@ public class Users implements Serializable {
     /**
      * 真实姓名
      */
+    private Integer gender;
+
+    private Integer age;
+
+    private String tel;
+
+    private String address;
     private String cardName;
 
     /**

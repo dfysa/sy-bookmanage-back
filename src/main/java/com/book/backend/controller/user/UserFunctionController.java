@@ -1,16 +1,21 @@
 package com.book.backend.controller.user;
 
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.book.backend.common.BasePage;
 import com.book.backend.common.R;
 import com.book.backend.pojo.*;
 import com.book.backend.pojo.dto.CommentDTO;
+import com.book.backend.pojo.dto.UsersDTO;
 import com.book.backend.pojo.dto.ViolationDTO;
 import com.book.backend.service.*;
+import com.book.backend.utils.JwtKit;
+import io.jsonwebtoken.Claims;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -36,6 +41,8 @@ public class UserFunctionController {
     private CommentService commentService;
     @Resource
     private AiIntelligentService aiIntelligentService;
+    @Resource
+    private JwtKit jwtKit;
 
     /**
      * 图书查询 分页和条件查询 (模糊查询)
@@ -83,16 +90,7 @@ public class UserFunctionController {
         return usersService.getUserByUserId(userId);
     }
 
-    /**
-     * 修改密码
-     *
-     * @return R
-     */
-    @PostMapping("update_password")
-    @ApiOperation("修改密码")
-    public R<String> updatePassword(@RequestBody Users users) {
-        return usersService.updatePassword(users);
-    }
+
 
     /**
      * 借阅信息查询 根据用户id，条件及其内容
@@ -161,5 +159,23 @@ public class UserFunctionController {
     @ApiOperation("获取该用户和AI聊天的最近的五条消息")
     public R<List<AiIntelligent>> getAiInformationByUserId(@PathVariable("userId") Long userId){
         return aiIntelligentService.getAiInformationByUserId(userId);
+    }
+
+    @PostMapping("edit")
+    @ApiOperation("更新用户个人信息")
+    public R<String> editInfoById(@RequestBody Users users) {
+
+        return usersService.editInfoByUserId(users);
+    }
+
+    /**
+     * 修改密码
+     *
+     * @return R
+     */
+    @PostMapping("update_password")
+    @ApiOperation("修改密码")
+    public R<String> updatePassword(@RequestBody Users users) {
+        return usersService.updatePassword(users);
     }
 }

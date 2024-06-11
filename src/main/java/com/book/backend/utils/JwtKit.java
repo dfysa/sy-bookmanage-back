@@ -38,12 +38,14 @@ public class JwtKit {
         claims.put("createdate", new Date());
         claims.put("id", System.currentTimeMillis());
         // 要存储的数据
-        return Jwts.builder().addClaims(claims)
+        String token = Jwts.builder().addClaims(claims)
                 // 过期时间
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
                 // 加密算法和密钥
                 .signWith(SignatureAlgorithm.HS256, jwtProperties.getSecret())
                 .compact(); // 打包返回 3部分
+        System.out.println("生成的 Token: " + token); // 打印生成的 Token
+        return token;
     }
 
     public JwtKit() {
@@ -61,11 +63,15 @@ public class JwtKit {
      */
     public  Claims parseJwtToken(String token) {
         Claims claims = null;
-        // 根据哪个密钥解密
-        claims = Jwts.parser().setSigningKey(jwtProperties.getSecret())
-                // 设置要解析的Token
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(jwtProperties.getSecret())
+                    .parseClaimsJws(token)
+                    .getBody();
+            System.out.println("解析的 Claims: " + claims); // 打印解析的 Claims
+        } catch (Exception e) {
+            e.printStackTrace(); // 打印异常信息
+        }
         return claims;
     }
 }

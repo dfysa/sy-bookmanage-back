@@ -3,6 +3,7 @@ package com.book.backend.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.book.backend.common.BasePage;
 import com.book.backend.common.R;
+import com.book.backend.pojo.BookAdmins;
 import com.book.backend.pojo.Users;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.book.backend.pojo.dto.UsersDTO;
@@ -38,6 +39,8 @@ public interface UsersService extends IService<Users> {
      */
     R login(Users users);
 
+    R<String> editInfoByUserId ( Users users);
+
     /**
      * 根据用户id传给用户所需的信息
      * @param users 用户
@@ -72,4 +75,32 @@ public interface UsersService extends IService<Users> {
      * @return R
      */
     R<String> deleteStatementByUserId( Integer userId);
+
+
+
+
+    R<Page<Users>> getUserListByPage(BasePage basePage);
+    /**
+     * 获取用户信息 通过用户id
+     *
+     * @param userId 用户id
+     * @return R<Users>
+     */
+    R<Users> getUserById( Integer userId);
+    /**
+     * 删除用户 根据用户id
+     *
+     * @param userId 用户id
+     * @return R<String>
+     */
+    R<String> deleteUserById( Integer userId);
+    /**
+     * 修改图书管理员
+     *
+     * @param users 用户
+     * @return R<String>
+     */
+    R<String> updateUser( Users users);
+
+   R<String> addUser(Users users);
 }

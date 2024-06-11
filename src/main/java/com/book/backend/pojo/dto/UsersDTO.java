@@ -10,5 +10,16 @@ import java.io.Serializable;
  */
 @Data
 public class UsersDTO extends Users implements Serializable {
+    private String username;
+    private String password;
     public String userStatus;
+
+    private Integer gender;
+
+    private Integer age;
+
+    private String tel;
+
+    private String address;
+    private String cardName;
 }

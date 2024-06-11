@@ -12,6 +12,7 @@ import com.book.backend.common.R;
 import com.book.backend.common.exception.CommonError;
 import com.book.backend.common.exception.VueBookException;
 import com.book.backend.mapper.UsersMapper;
+import com.book.backend.pojo.BookAdmins;
 import com.book.backend.pojo.Users;
 import com.book.backend.pojo.dto.UsersDTO;
 import com.book.backend.service.UsersService;
@@ -94,11 +95,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
         String saltPassword = SALT+password;
         String md5Password = DigestUtils.md5DigestAsHex(saltPassword.getBytes());
         userOne.setPassword(md5Password);
-        // todo 取消注释即可成功修改密码 我这边防止有人恶意修改默认用户导致其他游客访问不了，因此取消修改密码的逻辑
-//        boolean update = this.update(userOne, queryWrapper);
-//        if (!update) {
-//            return R.error("更改密码失败");
-//        }
+
+        boolean update = this.update(userOne, queryWrapper);
+        if (!update) {
+            return R.error("更改密码失败");
+        }
         return R.success(null, "更改密码成功");
     }
 
@@ -147,6 +148,64 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
         return result;
     }
 
+    @Override
+    public R<String> editInfoByUserId(Users users) {
+        Long userId = users.getUserId();
+        // 获取用户信息
+        Users user = this.getById(userId);
+        if (user == null) {
+            return R.error("用户不存在");
+        }
+
+        // 更新用户信息
+        boolean isUpdated = false;
+
+        String username = users.getUsername();
+        Integer gender = users.getGender();
+        Integer age = users.getAge();
+        String tel = users.getTel();
+        String address = users.getAddress();
+
+        if (StringUtils.isNotBlank(username)) {
+            user.setUsername(username);
+            isUpdated = true;
+        }
+
+
+
+        if (gender!=null) {
+            user.setGender(gender);
+            isUpdated = true;
+        }
+
+        if (age != null) {
+            user.setAge(age);
+            isUpdated = true;
+        }
+
+        if (StringUtils.isNotBlank(tel)) {
+            user.setTel(tel);
+            isUpdated = true;
+        }
+
+        if (StringUtils.isNotBlank(address)) {
+            user.setAddress(address);
+            isUpdated = true;
+        }
+
+        // 检查是否有字段被更新
+        if (!isUpdated) {
+            return R.error("没有更新任何信息");
+        }
+
+        // 更新用户信息
+        boolean update = this.updateById(user);
+        if (!update) {
+            return R.error("修改个人信息失败");
+        }
+
+        return R.success(null, "修改个人信息成功");
+    }
     /**
      * 1.先获取请求中的id
      * 2.根据id到数据库中查询id是否存活
@@ -289,7 +348,149 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users>
         }
         return R.success(null, "删除借阅证成功");
     }
-}
+
+    @Override
+    public R<String> addUser(Users users) {
+
+        // 获取未加密的密码
+        String password = SALT + users.getPassword();
+        String md5Password = DigestUtils.md5DigestAsHex(password.getBytes());
+        users.setPassword(md5Password);
+        users.setStatus(Constant.AVAILABLE);
+        boolean save = this.save(users);
+        if (!save) {
+            return R.error("添加用户失败");
+        }
+        return R.success(null, "添加用户成功");
+    }
+
+    @Override
+    public R<Page<Users>> getUserListByPage(BasePage basePage) {
+        // 页码
+        int pageNum = basePage.getPageNum();
+        // 页数
+        int pageSize = basePage.getPageSize();
+        Page<Users> pageInfo = new Page<>(pageNum, pageSize);
+        Page<Users> page = this.page(pageInfo);
+        if (page.getTotal() == 0) {
+            return R.error("用户列表为空");
+        }
+        return R.success(pageInfo, "获取用户列表成功");
+    }
+
+    /**
+     * 获取用户信息 通过用户id
+     *
+     * @param UserId 用户id
+     * @return R<Users>
+     */
+    @Override
+    public R<Users> getUserById(Integer UserId) {
+        Users users = this.getById(UserId);
+        if (users == null) {
+            return R.error("获取用户信息失败");
+        }
+        return R.success(users, "获取用户信息成功");
+    }
+
+    /**
+     * 删除用户 根据用户id
+     *
+     * @param UserId 用户id
+     * @return R<String>
+     */
+    @Override
+    public R<String> deleteUserById(Integer UserId) {
+        Users users = this.getById(UserId);
+        if (users == null) {
+            return R.error("删除用户失败");
+        }
+        boolean remove = this.removeById(UserId);
+        if (!remove) {
+            return R.error("删除用户失败");
+        }
+        return R.success(null, "删除用户成功");
+    }
+
+    /**
+     * 修改图书管理员
+     *
+     * @param users 用户
+     * @return R<String>
+     */
+    @Override
+    public R<String> updateUser(Users users) {
+        String password = users.getPassword();
+        if (password.length() >= Constant.MD5PASSWORD) {
+            users.setPassword(password);
+        } else {
+            String md5Password = DigestUtils.md5DigestAsHex(password.getBytes());
+            users.setPassword(md5Password);
+        }
+        boolean update = this.updateById(users);
+        if (!update) {
+            return R.error("修改用户失败");
+        }
+        return R.success(null, "修改用户成功");
+    }
+    }
+//
+//
+//    @Override
+//    public R<Page<BookAdmins>> getBookAdminListByPage(BasePage basePage) {
+//        // 页码
+//        int pageNum = basePage.getPageNum();
+//        // 页数
+//        int pageSize = basePage.getPageSize();
+//        Page<BookAdmins> pageInfo = new Page<>(pageNum, pageSize);
+//        Page<BookAdmins> page = this.page(pageInfo);
+//        if (page.getTotal() == 0) {
+//            return R.error("图书管理员列表为空");
+//        }
+//        return R.success(pageInfo, "获取图书管理员列表成功");
+//    }
+//    /**
+//     * 1.调用服务查询是否有该id对应的图书管理员
+//     * 2.如果存在，封装到数据实体类
+//     * 3.不存在，返回错误信息
+//     */
+//    @Override
+//    public R<BookAdmins> getBookAdminById(Integer bookAdminId) {
+//        BookAdmins bookAdmins = this.getById(bookAdminId);
+//        if (bookAdmins == null) {
+//            return R.error("获取图书管理员信息失败");
+//        }
+//        return R.success(bookAdmins, "获取图书管理员信息成功");
+//    }
+//
+//    @Override
+//    public R<String> deleteBookAdminById(Integer bookAdminId) {
+//        BookAdmins bookAdmins = this.getById(bookAdminId);
+//        if (bookAdmins == null) {
+//            return R.error("删除图书管理员失败");
+//        }
+//        boolean remove = this.removeById(bookAdminId);
+//        if (!remove) {
+//            return R.error("删除图书管理员失败");
+//        }
+//        return R.success(null, "删除图书管理员成功");
+//    }
+//
+//    @Override
+//    public R<String> updateBookAdmin(BookAdmins bookAdmins) {
+//        String password = bookAdmins.getPassword();
+//        if (password.length() >= Constant.MD5PASSWORD) {
+//            bookAdmins.setPassword(password);
+//        } else {
+//            String md5Password = DigestUtils.md5DigestAsHex(password.getBytes());
+//            bookAdmins.setPassword(md5Password);
+//        }
+//        boolean update = this.updateById(bookAdmins);
+//        if (!update) {
+//            return R.error("修改图书管理员失败");
+//        }
+//        return R.success(null, "修改图书管理员成功");
+//    }
 
 
 

@@ -7,12 +7,14 @@ import com.book.backend.pojo.BooksBorrow;
 import com.book.backend.pojo.Notice;
 import com.book.backend.pojo.Violation;
 import com.book.backend.pojo.dto.BooksBorrowDTO;
+import com.book.backend.pojo.dto.UsersDTO;
 import com.book.backend.pojo.dto.ViolationDTO;
 import com.book.backend.service.*;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author 程序员小白条
@@ -30,6 +32,9 @@ public class BookAdminFunctionController {
 
     @Resource
     private NoticeService noticeService;
+
+    @Resource
+    private UsersService usersService;
 
 
     /**
@@ -66,6 +71,7 @@ public class BookAdminFunctionController {
     public R<ViolationDTO> queryExpireInformationByBookNumber(@PathVariable("bookNumber") Long bookNumber) {
         return booksBorrowService.queryExpireInformationByBookNumber(bookNumber);
     }
+
 
     /**
      * 归还图书
@@ -162,4 +168,6 @@ public class BookAdminFunctionController {
     public R<String> updateNoticeByNoticeId(@PathVariable("noticeId") Integer noticeId, @RequestBody Notice notice) {
         return noticeService.updateNoticeByNoticeId(noticeId, notice);
     }
+
+
 }
