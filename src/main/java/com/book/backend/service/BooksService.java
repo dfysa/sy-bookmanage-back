@@ -88,4 +88,13 @@ public interface BooksService extends IService<Books> {
      */
     R<String> deleteBookByBatch( List<Books> booksList);
 
+    /**
+     * 获取热门图书列表，按借阅次数降序排列
+     *
+     * @return R<List<Books>>
+     */
+    R<List<Books>> getHotBooks();
+
+    R<List<Books>> getHotBooksByCategory(String category);
+
 }

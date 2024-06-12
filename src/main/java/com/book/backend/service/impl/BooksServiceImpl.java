@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 程序员小白条
@@ -381,9 +382,103 @@ public class BooksServiceImpl extends ServiceImpl<BooksMapper, Books>
         }
         return R.error("批量删除图书失败");
     }
+    /**
+     * 获取最热门的图书并按降序排列
+     */
+    @Override
+    public R<List<Books>> getHotBooks() {
+        // 统计每本书的借阅次数
+        LambdaQueryWrapper<BooksBorrow> borrowQueryWrapper = new LambdaQueryWrapper<>();
+        borrowQueryWrapper.select(BooksBorrow::getBookNumber);
+        List<BooksBorrow> borrowList = booksBorrowService.list(borrowQueryWrapper);
 
+
+        if (borrowList.isEmpty()) {
+            return R.error("没有找到任何借阅记录");
+        }
+
+        Map<Long, Long> bookCountMap = borrowList.stream()
+                .collect(Collectors.groupingBy(BooksBorrow::getBookNumber, Collectors.counting()));
+
+        // 获取所有热门书籍的book_numbers，按借阅次数降序排列
+        List<Long> sortedBookNumbers = bookCountMap.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        if (sortedBookNumbers.isEmpty()) {
+            return R.error("没有找到任何热门图书");
+        }
+
+        // 根据排序后的book_numbers顺序查询图书信息
+        List<Books> hotBooks = new ArrayList<>();
+        for (Long bookNumber : sortedBookNumbers) {
+            LambdaQueryWrapper<Books> bookQueryWrapper = new LambdaQueryWrapper<>();
+            bookQueryWrapper.eq(Books::getBookNumber, bookNumber);
+            Books book = this.getOne(bookQueryWrapper);
+            if (book != null) {
+                hotBooks.add(book);
+            } else {
+                System.out.println("未找到书籍，bookNumber: " + bookNumber);
+            }
+        }
+        System.out.println("borrowList: " );
+        System.out.println("borrowList: " + borrowList);
+        System.out.println("bookCountMap: " + bookCountMap);
+        System.out.println("sortedBookNumbers: " + sortedBookNumbers);
+        return R.success(hotBooks, "获取热门图书成功");
+    }
+    /**
+     * 获取特定种类的热门图书并按降序排列
+     */
+    @Override
+    public R<List<Books>> getHotBooksByCategory(String category) {
+        // 统计每本书的借阅次数
+        LambdaQueryWrapper<BooksBorrow> borrowQueryWrapper = new LambdaQueryWrapper<>();
+        borrowQueryWrapper.select(BooksBorrow::getBookNumber);
+        List<BooksBorrow> borrowList = booksBorrowService.list(borrowQueryWrapper);
+
+        if (borrowList.isEmpty()) {
+            return R.error("没有找到任何借阅记录");
+        }
+
+        Map<Long, Long> bookCountMap = borrowList.stream()
+                .collect(Collectors.groupingBy(BooksBorrow::getBookNumber, Collectors.counting()));
+
+        // 获取所有热门书籍的book_numbers，按借阅次数降序排列
+        List<Long> sortedBookNumbers = bookCountMap.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        if (sortedBookNumbers.isEmpty()) {
+            return R.error("没有找到任何热门图书");
+        }
+
+        // 根据排序后的book_numbers顺序查询图书信息并过滤种类
+        List<Books> hotBooks = new ArrayList<>();
+        for (Long bookNumber : sortedBookNumbers) {
+            LambdaQueryWrapper<Books> bookQueryWrapper = new LambdaQueryWrapper<>();
+            bookQueryWrapper.eq(Books::getBookNumber, bookNumber)
+                    .eq(Books::getBookType, category); // 过滤种类
+            Books book = this.getOne(bookQueryWrapper);
+            if (book != null) {
+                hotBooks.add(book);
+            } else {
+                System.out.println("未找到书籍或书籍种类不匹配，bookNumber: " + bookNumber);
+            }
+        }
+
+        if (hotBooks.isEmpty()) {
+            return R.error("没有找到任何匹配种类的热门图书");
+        }
+
+        return R.success(hotBooks, "获取热门图书成功");
+    }
 
 }
+
+
 
 
 

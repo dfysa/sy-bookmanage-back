@@ -178,4 +178,21 @@ public class UserFunctionController {
     public R<String> updatePassword(@RequestBody Users users) {
         return usersService.updatePassword(users);
     }
+
+    /**
+     * 获取热门图书列表
+     *
+     * @return R<List<Books>>
+     */
+    @GetMapping("get_hot_books")
+    @ApiOperation("获取热门图书列表")
+    public R<List<Books>> getHotBooks() {
+        return booksService.getHotBooks();
+    }
+
+    @GetMapping("get_hot_by_category")
+    @ApiOperation("根据种类获取热门图书列表")
+    public R<List<Books>> getHotBooksByCategory(@RequestParam String category) {
+        return booksService.getHotBooksByCategory(category);
+    }
 }
